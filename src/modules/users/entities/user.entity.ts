@@ -16,4 +16,10 @@ export class User {
 
   @UpdateDateColumn()
   public updatedAt: Date;
+
+  @Column()
+  public address: string;
+
+  @Column("simple-json")
+  public coordinates: { lat: number; lng: number };
 }

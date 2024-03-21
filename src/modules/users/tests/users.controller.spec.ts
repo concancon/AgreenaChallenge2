@@ -35,7 +35,7 @@ describe("UsersController", () => {
   });
 
   describe("POST /users", () => {
-    const createUserDto: CreateUserInputDto = { email: "user@test.com", password: "password" };
+    const createUserDto: CreateUserInputDto = { email: "user@test.com", password: "password", address: "Null Island" };
 
     it("should create new user", async () => {
       const res = await agent.post("/api/users").send(createUserDto);
@@ -67,7 +67,7 @@ describe("UsersController", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body).toMatchObject({
         name: "BadRequestError",
-        message: "email must be an email, password must be a string",
+        message: "email must be an email, password must be a string, address should not be empty, address must be a string",
       });
     });
   });

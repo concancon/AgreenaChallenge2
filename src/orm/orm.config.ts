@@ -4,7 +4,7 @@ import { DataSource, DataSourceOptions } from "typeorm";
 const options: DataSourceOptions = {
   type: "postgres",
   entities: ["src/**/**/entities/**/*.ts"],
-  synchronize: false,
+  synchronize: true,
   migrations: ["src/**/**/migrations/**/*.ts"],
   host: config.DB_HOST,
   port: config.DB_PORT,

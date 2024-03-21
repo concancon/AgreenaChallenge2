@@ -40,7 +40,8 @@ describe("AuthController", () => {
   });
 
   describe("POST /auth", () => {
-    const createUser = async (userDto: Partial<User>) => ds.getRepository(User).save({ email: userDto.email, hashedPassword });
+    const createUser = async (userDto: Partial<User>) =>
+      ds.getRepository(User).save({ email: userDto.email, hashedPassword, address: "foo", coordinates: { lat: 42, lon: 42 } });
     const loginDto: LoginUserInputDto = { email: "user@test.com", password: validPassword };
 
     it("should login existing user", async () => {

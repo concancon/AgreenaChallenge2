@@ -20,7 +20,10 @@
     "noUnusedParameters": true,
     "pretty": true,
     "alwaysStrict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@types/*": ["node_modules/@types"] 
+    }
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]
