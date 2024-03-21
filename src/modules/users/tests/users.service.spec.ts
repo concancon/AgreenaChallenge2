@@ -51,7 +51,7 @@ describe("UsersService", () => {
     const createUserDto: CreateUserInputDto = {
       email: "user@test.com",
       password: "password",
-      address: "",
+      address: "Andersenstr. 3 10439",
     };
 
     it("should get user by provided param", async () => {

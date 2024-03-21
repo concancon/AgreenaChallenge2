@@ -26,4 +26,8 @@ export class CreateFarmInputDto {
   @IsNumber()
   @Min(1)
   public yield: number;
+
+  @IsString()
+  @IsNotEmpty()
+  public address: string;
 }

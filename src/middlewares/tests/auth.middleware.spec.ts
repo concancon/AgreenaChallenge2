@@ -59,7 +59,7 @@ describe("AuthMiddleware", () => {
   });
 
   it("should validate existing token with given token", async () => {
-    const user = await usersService.createUser({ email: "user@test.com", password: "pwd", address: "Null Island" });
+    const user = await usersService.createUser({ email: "user@test.com", password: "pwd", address: "Andersenstr. 3 10439" });
     const { token } = await signAsync(user);
 
     const req = { headers: { authorization: `Bearer ${token}` } } as ExtendedRequest;

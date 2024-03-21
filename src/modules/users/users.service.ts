@@ -6,20 +6,16 @@ import { CreateUserInputDto } from "./dto/create-user.input.dto";
 import { User } from "./entities/user.entity";
 import dataSource from "orm/orm.config";
 import { Client } from "@googlemaps/google-maps-services-js";
-
-const args = {
-  params: {
-    key: config.GOOGLE_MAPS_API_KEY,
-    address: "Perth 4WD & Commercial Centre",
-  },
-};
+import { EnvironmentVariables } from "config/environment-variables";
 
 export class UsersService {
   private readonly usersRepository: Repository<User>;
   private readonly googleMapsClient: Client;
+  private readonly config: EnvironmentVariables;
   constructor() {
     this.googleMapsClient = new Client();
     this.usersRepository = dataSource.getRepository(User);
+    this.config = config;
   }
 
   public async createUser(data: CreateUserInputDto): Promise<User> {
@@ -30,7 +26,7 @@ export class UsersService {
 
     const hashedPassword = await this.hashPassword(password);
 
-    const response = await this.googleMapsClient.geocode(args);
+    const response = await this.googleMapsClient.geocode({ params: { key: this.config.GOOGLE_MAPS_API_KEY, address } });
     const { lat, lng } = response.data.results[0].geometry.location;
     const userData: DeepPartial<User> = { email, hashedPassword, address, coordinates: { lat, lng } };
     const newUser = this.usersRepository.create(userData);

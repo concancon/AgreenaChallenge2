@@ -36,6 +36,7 @@ describe("FarmsController", () => {
       name: "Test Farm 1",
       size: 10,
       yield: 200,
+      address: "Andersenstr. 3 10439",
     };
 
     it("should create new farm", async () => {
@@ -59,7 +60,9 @@ describe("FarmsController", () => {
     });
 
     it("should throw UnprocessableEntityError if farm name already exists", async () => {
-      await ds.getRepository(Farm).save(input);
+      await ds
+        .getRepository(Farm)
+        .save({ ...input, address: "Andersenstr. 3 10439", coordinates: { lat: 52.5552274, lng: 13.404094 } });
 
       const res = await agent.post("/api/farms").send(input);
 
