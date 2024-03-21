@@ -9,7 +9,7 @@ import { Client } from "@googlemaps/google-maps-services-js";
 
 const args = {
   params: {
-    key: config.GOOGLE_MAPS_API_KEY, //this will no loger be passed in. 
+    key: config.GOOGLE_MAPS_API_KEY,
     address: "Perth 4WD & Commercial Centre",
   },
 };
