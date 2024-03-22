@@ -1,9 +1,9 @@
 import { UnprocessableEntityError } from "errors/errors";
 import { clearDatabase, disconnectAndClearDatabase } from "helpers/utils";
 import ds from "orm/orm.config";
-import { CreateUserInputDto } from "../dto/create-user.input.dto";
 import { User } from "../entities/user.entity";
 import { UsersService } from "../users.service";
+import { CreateUserWithCoordinatesDto } from "../dto/create-user-with-coordinates.dto";
 
 describe("UsersService", () => {
   let usersService: UsersService;
@@ -22,10 +22,14 @@ describe("UsersService", () => {
   });
 
   describe(".createUser", () => {
-    const createUserDto: CreateUserInputDto = {
+    const createUserDto: CreateUserWithCoordinatesDto = {
       email: "user@test.com",
       password: "password",
       address: "Andersen strasse 3 10439 Berlin",
+      coordinates: {
+        lat: 42,
+        lng: 42,
+      },
     };
 
     it("should create new user", async () => {
@@ -48,10 +52,14 @@ describe("UsersService", () => {
   });
 
   describe(".findOneBy", () => {
-    const createUserDto: CreateUserInputDto = {
+    const createUserDto: CreateUserWithCoordinatesDto = {
       email: "user@test.com",
       password: "password",
       address: "Andersenstr. 3 10439",
+      coordinates: {
+        lat: 42,
+        lng: 42,
+      },
     };
 
     it("should get user by provided param", async () => {

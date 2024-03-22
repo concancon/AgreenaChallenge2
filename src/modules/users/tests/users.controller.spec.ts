@@ -5,8 +5,8 @@ import { clearDatabase, disconnectAndClearDatabase } from "helpers/utils";
 import http, { Server } from "http";
 import ds from "orm/orm.config";
 import supertest, { SuperAgentTest } from "supertest";
-import { CreateUserInputDto } from "../dto/create-user.input.dto";
 import { UsersService } from "../users.service";
+import { CreateUserInputDto } from "../dto/create-user.input.dto";
 
 describe("UsersController", () => {
   let app: Express;
@@ -35,7 +35,11 @@ describe("UsersController", () => {
   });
 
   describe("POST /users", () => {
-    const createUserDto: CreateUserInputDto = { email: "user@test.com", password: "password", address: "Andersenstr. 3 10439" };
+    const createUserDto: CreateUserInputDto = {
+      email: "user@test.com",
+      password: "password",
+      address: "Andersenstr. 3 10439",
+    };
 
     it("should create new user", async () => {
       const res = await agent.post("/api/users").send(createUserDto);
@@ -46,11 +50,13 @@ describe("UsersController", () => {
         email: expect.stringContaining(createUserDto.email) as string,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
+        address: expect.stringMatching(createUserDto.address) as string,
+        coordinates: { lat: 52.5552274, lng: 13.404094 },
       });
     });
 
     it("should throw UnprocessableEntityError if user already exists", async () => {
-      await usersService.createUser(createUserDto);
+      await usersService.createUser({ ...createUserDto, coordinates: { lat: 42, lng: 42 } });
 
       const res = await agent.post("/api/users").send(createUserDto);
 

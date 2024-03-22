@@ -34,4 +34,10 @@ export class CreateUserOutputDto {
   @Transform(({ value }) => (value as Date).toISOString())
   @Expose()
   public updatedAt: Date;
+
+  @Expose()
+  public address: string;
+
+  @Expose()
+  public coordinates: { lat: number; lng: number };
 }
