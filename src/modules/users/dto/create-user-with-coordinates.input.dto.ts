@@ -17,7 +17,7 @@ import { CreateUserInputDto } from "./create-user.input.dto";
  *          type: string
  *          default: password
  */
-export class CreateUserWithCoordinatesDto extends CreateUserInputDto {
+export class CreateUserWithCoordinatesInputDto extends CreateUserInputDto {
   @IsObject()
   @IsNotEmpty()
   public coordinates: { lat: number; lng: number };

@@ -3,7 +3,7 @@ import { clearDatabase, disconnectAndClearDatabase } from "helpers/utils";
 import ds from "orm/orm.config";
 import { User } from "../entities/user.entity";
 import { UsersService } from "../users.service";
-import { CreateUserWithCoordinatesDto } from "../dto/create-user-with-coordinates.dto";
+import { CreateUserWithCoordinatesInputDto } from "../dto/create-user-with-coordinates.input.dto";
 
 describe("UsersService", () => {
   let usersService: UsersService;
@@ -22,7 +22,7 @@ describe("UsersService", () => {
   });
 
   describe(".createUser", () => {
-    const createUserDto: CreateUserWithCoordinatesDto = {
+    const createUserDto: CreateUserWithCoordinatesInputDto = {
       email: "user@test.com",
       password: "password",
       address: "Andersen strasse 3 10439 Berlin",
@@ -52,7 +52,7 @@ describe("UsersService", () => {
   });
 
   describe(".findOneBy", () => {
-    const createUserDto: CreateUserWithCoordinatesDto = {
+    const createUserDto: CreateUserWithCoordinatesInputDto = {
       email: "user@test.com",
       password: "password",
       address: "Andersenstr. 3 10439",

@@ -4,7 +4,7 @@ import { UnprocessableEntityError } from "errors/errors";
 import { DeepPartial, FindOptionsWhere, Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import dataSource from "orm/orm.config";
-import { CreateUserWithCoordinatesDto } from "./dto/create-user-with-coordinates.dto";
+import { CreateUserWithCoordinatesInputDto } from "./dto/create-user-with-coordinates.input.dto";
 
 export class UsersService {
   private readonly usersRepository: Repository<User>;
@@ -13,7 +13,7 @@ export class UsersService {
     this.usersRepository = dataSource.getRepository(User);
   }
 
-  public async createUser(data: CreateUserWithCoordinatesDto): Promise<User> {
+  public async createUser(data: CreateUserWithCoordinatesInputDto): Promise<User> {
     const { email, password, address, coordinates } = data;
 
     const existingUser = await this.findOneBy({ email });
