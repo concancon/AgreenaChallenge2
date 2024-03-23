@@ -22,7 +22,7 @@ describe("AddressService", () => {
   beforeEach(() => {});
 
   describe(".getCoordinatesFromAddress", () => {
-    it("should create new farm", async () => {
+    it("should return coordinates when passed the correct api key and the provided address", async () => {
       const inputAddress: string = "Andersenstr. 3 10439";
       const response = { data: { results: [{ geometry: { location: { lat: 42, lng: 42 } } }] } };
       mock = jest.fn();
