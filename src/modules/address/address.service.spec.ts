@@ -18,12 +18,6 @@ jest.mock("@googlemaps/google-maps-services-js", () => {
 describe("AddressService", () => {
   let addressService: AddressService;
 
-  beforeAll(async () => {});
-
-  afterAll(async () => {});
-
-  beforeEach(() => {});
-
   describe(".getCoordinatesFromAddress", () => {
     it("should return coordinates when passed the correct api key and the provided address", async () => {
       const inputAddress: string = "Andersenstr. 3 10439";
