@@ -1,6 +1,5 @@
 import { RequestHandler, Router } from "express";
 import { authMiddleware } from "middlewares/auth.middleware";
-//import { authMiddleware } from "middlewares/auth.middleware";
 import { validateInputMiddleware } from "middlewares/validate-input.middleware";
 import { CreateFarmInputDto } from "modules/farms/dto/create-farm.input.dto";
 import { FarmsController } from "modules/farms/farms.controller";
@@ -39,5 +38,7 @@ router.post(
   [validateInputMiddleware(CreateFarmInputDto), authMiddleware],
   farmsController.create.bind(farmsController) as RequestHandler,
 );
+
+router.get("/", [authMiddleware], farmsController.get.bind(farmsController) as RequestHandler);
 
 export default router;

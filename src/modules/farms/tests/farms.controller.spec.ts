@@ -39,7 +39,7 @@ describe("FarmsController", () => {
     agent = supertest.agent(app);
     const createUserDto: CreateUserInputDto = {
       email: "user@test.com",
-      password: "password",
+      password: validPassword,
       address: "Andersenstr. 3 10439",
     };
 
@@ -110,6 +110,92 @@ describe("FarmsController", () => {
         name: "BadRequestError",
         message: "size must not be less than 1",
       });
+    });
+  });
+
+  describe("GET /farms", () => {
+    let farm1: CreateFarmInputDto, farm2: CreateFarmInputDto;
+    let user1: User, user2: User;
+    let userOutputDto1: LoginUserOutputDto, userOutputDto2: LoginUserOutputDto;
+    beforeEach(async () => {
+      await clearDatabase(ds);
+
+      agent = supertest.agent(app);
+      const createUserDto: CreateUserInputDto = {
+        email: "user1@test.com",
+        password: validPassword,
+        address: "Andersenstr. 3 10439",
+      };
+
+      const createUserRes = await agent.post("/api/users").send(createUserDto);
+      user1 = createUserRes.body as User;
+      const loginDto: LoginUserInputDto = { email: "user1@test.com", password: validPassword };
+
+      const loginUserRes = await agent.post("/api/auth/login").send(loginDto);
+      userOutputDto1 = loginUserRes.body as LoginUserOutputDto;
+
+      farm1 = {
+        name: "Test Farm 1",
+        size: 10,
+        yield: 200,
+        address: "Andersenstr. 3 10439",
+        owner: user1,
+      };
+
+      await agent.post("/api/farms").set("Authorization", `Bearer ${userOutputDto1.token}`).send(farm1);
+
+      const createUserDto2: CreateUserInputDto = {
+        email: "user2@test.com",
+        password: validPassword,
+        address: "Andersenstr. 4 10439",
+      };
+
+      const createUserRes2 = await agent.post("/api/users").send(createUserDto2);
+      user2 = createUserRes2.body as User;
+      const loginDto2: LoginUserInputDto = { email: "user2@test.com", password: validPassword };
+
+      const loginUserRes2 = await agent.post("/api/auth/login").send(loginDto2);
+      userOutputDto2 = loginUserRes2.body as LoginUserOutputDto;
+
+      farm2 = {
+        name: "Test Farm 2",
+        size: 10,
+        yield: 200,
+        address: "Andersenstr. 4 10439",
+        owner: user2,
+      };
+
+      await agent.post("/api/farms").set("Authorization", `Bearer ${userOutputDto2.token}`).send(farm2);
+    });
+
+    it("should return all users farms", async () => {
+      const res = await agent
+        .get("/api/farms")
+        .set("Authorization", `Bearer ${userOutputDto1.token}`)
+        .send({ ...input, size: -1 });
+
+      expect(res.statusCode).toBe(201);
+
+      const expectedFarm1 = {
+        id: expect.any(String),
+        name: farm1.name,
+        size: farm1.size,
+        yield: farm1.yield,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        owner: { ...user1, createdAt: expect.any(String), updatedAt: expect.any(String) },
+      };
+      const expectedFarm2 = {
+        id: expect.any(String),
+        name: farm2.name,
+        size: farm2.size,
+        yield: farm2.yield,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        owner: { ...user2, createdAt: expect.any(String), updatedAt: expect.any(String) },
+      };
+
+      expect(res.body).toMatchObject({ farms: [expectedFarm1, expectedFarm2] });
     });
   });
 });
