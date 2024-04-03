@@ -1,4 +1,5 @@
 import { Expose, Transform } from "class-transformer";
+import { User } from "modules/users/entities/user.entity";
 
 /**
  * @openapi
@@ -36,6 +37,9 @@ export class CreateFarmOutputDto {
 
   @Expose()
   public size: number;
+
+  @Expose()
+  public owner: User;
 
   @Transform(({ value }) => (value as Date).toISOString())
   @Expose()

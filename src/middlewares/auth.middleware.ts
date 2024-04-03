@@ -10,7 +10,6 @@ export type ExtendedRequest = Request & {
 
 export const authMiddleware = async (req: ExtendedRequest, _: Response, next: NextFunction): Promise<void> => {
   const authService = new AuthService();
-
   if (!req.headers.authorization) {
     next(new UnauthorizedError());
     return;

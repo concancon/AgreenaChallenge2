@@ -7,11 +7,19 @@ import ds from "orm/orm.config";
 import supertest, { SuperAgentTest } from "supertest";
 import { CreateFarmInputDto } from "../dto/create-farm.input.dto";
 import { Farm } from "../entities/farm.entity";
+import { LoginUserInputDto } from "modules/auth/dto/login-user.input.dto";
+import { User } from "modules/users/entities/user.entity";
+import { LoginUserOutputDto } from "modules/auth/dto/login-user.output.dto";
+import { CreateUserInputDto } from "modules/users/dto/create-user.input.dto";
 
 describe("FarmsController", () => {
   let app: Express;
   let agent: SuperAgentTest;
   let server: Server;
+  let input: CreateFarmInputDto;
+  let user: User;
+  let userOutputDto: LoginUserOutputDto;
+  const validPassword = "password";
 
   beforeAll(async () => {
     app = setupServer();
@@ -29,19 +37,36 @@ describe("FarmsController", () => {
     await clearDatabase(ds);
 
     agent = supertest.agent(app);
-  });
+    const createUserDto: CreateUserInputDto = {
+      email: "user@test.com",
+      password: "password",
+      address: "Andersenstr. 3 10439",
+    };
 
-  describe("POST /farms", () => {
-    const input: CreateFarmInputDto = {
+    const createUserRes = await agent.post("/api/users").send(createUserDto);
+    user = createUserRes.body as User;
+    const loginDto: LoginUserInputDto = { email: "user@test.com", password: validPassword };
+
+    const loginUserRes = await agent.post("/api/auth/login").send(loginDto);
+    userOutputDto = loginUserRes.body as LoginUserOutputDto;
+
+    input = {
       name: "Test Farm 1",
       size: 10,
       yield: 200,
       address: "Andersenstr. 3 10439",
+      owner: user,
     };
+  });
 
-    it("should create new farm", async () => {
-      const res = await agent.post("/api/farms").send(input);
+  describe("POST /farms", () => {
+    it("should NOT create new farm only if user is NOT logged in", async () => {
+      const createFarmRes = await agent.post("/api/farms").send(input);
+      expect(createFarmRes.statusCode).toBe(401);
+    });
 
+    it("should create new farm only if user is logged in", async () => {
+      const createFarmRes = await agent.post("/api/farms").set("Authorization", `Bearer ${userOutputDto.token}`).send(input);
       const farm = await ds.getRepository(Farm).findOne({ where: { name: input.name } });
 
       const expectedObject = {
@@ -51,12 +76,13 @@ describe("FarmsController", () => {
         yield: input.yield,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
+        owner: { ...user, createdAt: expect.any(Date), updatedAt: expect.any(Date) },
       };
 
-      expect(res.statusCode).toBe(201);
-      expect(farm).toMatchObject(expectedObject);
-
-      expect(res.body).toMatchObject({ ...expectedObject, createdAt: expect.any(String), updatedAt: expect.any(String) });
+      expect(createFarmRes.statusCode).toBe(201);
+      expect(farm).toMatchObject({
+        ...expectedObject,
+      });
     });
 
     it("should throw UnprocessableEntityError if farm name already exists", async () => {
@@ -64,7 +90,7 @@ describe("FarmsController", () => {
         .getRepository(Farm)
         .save({ ...input, address: "Andersenstr. 3 10439", coordinates: { lat: 52.5552274, lng: 13.404094 } });
 
-      const res = await agent.post("/api/farms").send(input);
+      const res = await agent.post("/api/farms").set("Authorization", `Bearer ${userOutputDto.token}`).send(input);
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toMatchObject({
@@ -74,7 +100,10 @@ describe("FarmsController", () => {
     });
 
     it("should throw BadRequestError if invalid inputs are provided", async () => {
-      const res = await agent.post("/api/farms").send({ ...input, size: -1 });
+      const res = await agent
+        .post("/api/farms")
+        .set("Authorization", `Bearer ${userOutputDto.token}`)
+        .send({ ...input, size: -1 });
 
       expect(res.statusCode).toBe(400);
       expect(res.body).toMatchObject({

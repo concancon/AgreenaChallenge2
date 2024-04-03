@@ -22,6 +22,7 @@ export class FarmsService {
       yield: data.yield,
       address: data.address,
       coordinates: data.coordinates,
+      owner: data.owner,
     };
     const newFarm = this.farmsRepository.create(farmDataWithAddress);
 

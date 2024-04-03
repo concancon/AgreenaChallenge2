@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsString, Min } from "class-validator";
+import { IsNotEmpty, IsNumber, IsObject, IsString, Min } from "class-validator";
+import { User } from "modules/users/entities/user.entity";
 
 /**
  * @openapi
@@ -30,4 +31,8 @@ export class CreateFarmInputDto {
   @IsString()
   @IsNotEmpty()
   public address: string;
+
+  @IsObject()
+  @IsNotEmpty()
+  public owner: User;
 }

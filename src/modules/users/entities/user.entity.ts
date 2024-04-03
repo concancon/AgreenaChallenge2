@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Farm } from "modules/farms/entities/farm.entity";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -22,4 +23,7 @@ export class User {
 
   @Column("simple-json")
   public coordinates: { lat: number; lng: number };
+
+  @OneToMany(() => Farm, farm => farm.owner)
+  public farms: Farm;
 }
