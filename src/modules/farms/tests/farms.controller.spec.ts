@@ -184,7 +184,7 @@ describe("FarmsController", () => {
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
         owner: { ...user1, createdAt: expect.any(String), updatedAt: expect.any(String) },
-        distance: 0,
+        drivingDistance: 0,
       };
       const expectedFarm2 = {
         id: expect.any(String),
@@ -194,7 +194,7 @@ describe("FarmsController", () => {
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
         owner: { ...user2, createdAt: expect.any(String), updatedAt: expect.any(String) },
-        distance: 18,
+        drivingDistance: 18,
       };
 
       expect(res.body).toMatchObject({ farms: [expectedFarm1, expectedFarm2] });

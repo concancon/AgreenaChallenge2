@@ -41,7 +41,7 @@ export class FarmsController {
       const response = await this.addressService.getDistanceMatrix({ origin: user.coordinates, destinations: allDestinations });
       const farmsWithDistanceToUser = new GetManyFarmsOutputDto();
       for (let i = 0; i < farms.length; i++) {
-        farmsWithDistanceToUser.farms.push({ ...farms[i], distance: response[i] });
+        farmsWithDistanceToUser.farms.push({ ...farms[i], drivingDistance: response[i] });
       }
       res.status(201).send(instanceToPlain(new GetManyFarmsOutputDto(farmsWithDistanceToUser)));
     } catch (error) {

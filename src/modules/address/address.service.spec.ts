@@ -90,7 +90,11 @@ describe("AddressService", () => {
       const origin = { lat: 42, lng: 42 };
       const destinations = [{ lat: 36, lng: 36 }];
       distanceMatrixMock = jest.fn();
-      const expectedResponse = { data: { rows: [{ elements: [{ distance: { value: 0 } }, { distance: { value: 18 } }] }] } };
+      const expectedDistance1 = 0;
+      const expectedDistance2 = 18;
+      const expectedResponse = {
+        data: { rows: [{ elements: [{ distance: { value: expectedDistance1 } }, { distance: { value: expectedDistance2 } }] }] },
+      };
       when(distanceMatrixMock)
         .calledWith({
           params: { key: config.GOOGLE_MAPS_API_KEY, origins: [origin as LatLng], destinations: destinations as LatLng[] },
@@ -100,7 +104,7 @@ describe("AddressService", () => {
       addressService = new AddressService();
       const response = await addressService.getDistanceMatrix({ origin, destinations });
       console.log(response);
-      expect(response).toEqual([0, 18]);
+      expect(response).toEqual([expectedDistance1, expectedDistance2]);
     });
   });
 });

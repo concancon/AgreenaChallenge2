@@ -11,7 +11,7 @@ import { Farm } from "../entities/farm.entity";
  *          type: object
  */
 class FarmWithDistanceToUser extends Farm {
-  public distance: number;
+  public drivingDistance: number;
 }
 
 export class GetManyFarmsOutputDto {
