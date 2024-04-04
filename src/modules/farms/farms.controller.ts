@@ -4,7 +4,15 @@ import { CreateFarmInputDto } from "./dto/create-farm.input.dto";
 import { CreateFarmOutputDto } from "./dto/create-farm.output.dto";
 import { instanceToPlain } from "class-transformer";
 import { AddressService } from "modules/address/address.service";
+import { User } from "modules/users/entities/user.entity";
 import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
+//import { Farm } from "./entities/farm.entity";
+
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: User;
+  }
+}
 
 export class FarmsController {
   private readonly farmsService: FarmsService;
@@ -28,12 +36,19 @@ export class FarmsController {
     }
   }
 
-  public async get(_req: Request, res: Response, next: NextFunction) {
+  public async get(req: Request, res: Response, next: NextFunction) {
     try {
-      //must only authenticate user and then return all farms. thus we call the farms service without params for now
       const farms = await this.farmsService.getAllFarms();
 
-      res.status(201).send(instanceToPlain(new GetManyFarmsOutputDto(farms)));
+      const user = req.user as User;
+      const allDestinations = farms.map(l => l.coordinates) as [{ lat: number; lng: number }];
+      const response = await this.addressService.getDistanceMatrix(user.coordinates, allDestinations);
+      const farmsWithDistanceToUser = new GetManyFarmsOutputDto();
+      // res.data.rows[0].elements.map(l =>l.distance.value)
+      for (let i = 0; i < farms.length; i++) {
+        farmsWithDistanceToUser.farms.push({ ...farms[i], distance: response.data.rows[0].elements[i].distance.value });
+      }
+      res.status(201).send(instanceToPlain(new GetManyFarmsOutputDto(farmsWithDistanceToUser)));
     } catch (error) {
       next(error);
     }

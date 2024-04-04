@@ -10,11 +10,15 @@ import { Farm } from "../entities/farm.entity";
  *        farms:
  *          type: object
  */
+class FarmWithDistanceToUser extends Farm {
+  public distance: number;
+}
+
 export class GetManyFarmsOutputDto {
   constructor(partial?: Partial<GetManyFarmsOutputDto>) {
     Object.assign(this, partial);
   }
 
   @Expose()
-  public farms: Farm[];
+  public farms = new Array<FarmWithDistanceToUser>();
 }

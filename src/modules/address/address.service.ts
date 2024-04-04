@@ -1,5 +1,5 @@
 import { EnvironmentVariables } from "config/environment-variables";
-import { Client, GeocodeResponse } from "@googlemaps/google-maps-services-js";
+import { Client, DistanceMatrixResponse, GeocodeResponse, LatLng } from "@googlemaps/google-maps-services-js";
 import config from "config/config";
 import { BadRequestError, UnauthorizedError } from "errors/errors";
 import { AxiosError } from "axios";
@@ -31,5 +31,24 @@ export class AddressService {
 
     const { lat, lng } = response.data.results[0].geometry.location;
     return { lat, lng };
+  }
+  public async getDistanceMatrix(
+    origin: { lat: number; lng: number },
+    destinations: [{ lat: number; lng: number }],
+  ): Promise<DistanceMatrixResponse> {
+    let response: DistanceMatrixResponse;
+    try {
+      response = await this.googleMapsClient.distancematrix({
+        params: { key: this.config.GOOGLE_MAPS_API_KEY, origins: [origin as LatLng], destinations: destinations as LatLng[] },
+      });
+    } catch (e: any) {
+      const error = e as AxiosError;
+      if (error.response?.status === 403) throw new UnauthorizedError();
+      else {
+        throw new Error(error.message);
+      }
+    }
+
+    return response;
   }
 }
