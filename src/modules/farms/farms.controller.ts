@@ -6,7 +6,6 @@ import { instanceToPlain } from "class-transformer";
 import { AddressService } from "modules/address/address.service";
 import { User } from "modules/users/entities/user.entity";
 import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
-//import { Farm } from "./entities/farm.entity";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -26,10 +25,8 @@ export class FarmsController {
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
       const createFarmInputDto = req.body as CreateFarmInputDto;
-
       const coordinates = await this.addressService.getCoordinatesFromAddress(createFarmInputDto.address);
       const farm = await this.farmsService.createFarm({ ...createFarmInputDto, coordinates });
-
       res.status(201).send(instanceToPlain(new CreateFarmOutputDto(farm)));
     } catch (error) {
       next(error);
@@ -39,14 +36,12 @@ export class FarmsController {
   public async get(req: Request, res: Response, next: NextFunction) {
     try {
       const farms = await this.farmsService.getAllFarms();
-
       const user = req.user as User;
       const allDestinations = farms.map(l => l.coordinates) as [{ lat: number; lng: number }];
-      const response = await this.addressService.getDistanceMatrix(user.coordinates, allDestinations);
+      const response = await this.addressService.getDistanceMatrix({ origin: user.coordinates, destinations: allDestinations });
       const farmsWithDistanceToUser = new GetManyFarmsOutputDto();
-      // res.data.rows[0].elements.map(l =>l.distance.value)
       for (let i = 0; i < farms.length; i++) {
-        farmsWithDistanceToUser.farms.push({ ...farms[i], distance: response.data.rows[0].elements[i].distance.value });
+        farmsWithDistanceToUser.farms.push({ ...farms[i], distance: response[i] });
       }
       res.status(201).send(instanceToPlain(new GetManyFarmsOutputDto(farmsWithDistanceToUser)));
     } catch (error) {

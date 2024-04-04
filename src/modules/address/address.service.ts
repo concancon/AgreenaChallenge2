@@ -32,10 +32,13 @@ export class AddressService {
     const { lat, lng } = response.data.results[0].geometry.location;
     return { lat, lng };
   }
-  public async getDistanceMatrix(
-    origin: { lat: number; lng: number },
-    destinations: [{ lat: number; lng: number }],
-  ): Promise<DistanceMatrixResponse> {
+  public async getDistanceMatrix({
+    origin,
+    destinations,
+  }: {
+    origin: { lat: number; lng: number };
+    destinations: { lat: number; lng: number }[];
+  }): Promise<number[]> {
     let response: DistanceMatrixResponse;
     try {
       response = await this.googleMapsClient.distancematrix({
@@ -49,6 +52,6 @@ export class AddressService {
       }
     }
 
-    return response;
+    return response.data.rows[0].elements.map(l => l.distance.value);
   }
 }
