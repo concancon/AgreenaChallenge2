@@ -1,11 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { FarmsService } from "./farms.service";
+
 import { CreateFarmInputDto } from "./dto/create-farm.input.dto";
 import { CreateFarmOutputDto } from "./dto/create-farm.output.dto";
 import { instanceToPlain } from "class-transformer";
 import { AddressService } from "modules/address/address.service";
 import { User } from "modules/users/entities/user.entity";
 import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
+//import { QueryFarmInputDto } from "./dto/query-farm-input.dto";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -35,7 +37,9 @@ export class FarmsController {
 
   public async get(req: Request, res: Response, next: NextFunction) {
     try {
-      const farms = await this.farmsService.getAllFarms();
+      const prop = req.query.prop as string;
+      const orderToSort = req.query.orderToSort as string;
+      const farms = await this.farmsService.getAllFarms({ sortBy: { prop, orderToSort } });
       const user = req.user as User;
       const allDestinations = farms.map(l => l.coordinates) as [{ lat: number; lng: number }];
       const response = await this.addressService.getDistanceMatrix({ origin: user.coordinates, destinations: allDestinations });

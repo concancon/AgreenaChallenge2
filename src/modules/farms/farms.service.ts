@@ -5,6 +5,13 @@ import { UnprocessableEntityError } from "errors/errors";
 import { CreateFarmWithCoordinatesInputDto } from "./dto/create-farm-with-coordinates.input.dto";
 //import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
 
+interface userQuery {
+  sortBy: {
+    prop: string;
+    orderToSort: string;
+  };
+}
+
 export class FarmsService {
   private readonly farmsRepository: Repository<Farm>;
 
@@ -29,12 +36,12 @@ export class FarmsService {
 
     return this.farmsRepository.save(newFarm);
   }
-  public async getAllFarms(): Promise<Farm[]> {
-    const allFarms = await this.farmsRepository.find({ order: { name: "ASC" } });
+
+  public async getAllFarms({ sortBy: { prop, orderToSort } }: userQuery): Promise<Farm[]> {
+    const allFarms = await this.farmsRepository.find({ order: { [prop]: orderToSort } });
     if (allFarms.length === 0) {
       throw new Error("No Farms exist");
     }
-
     return allFarms;
   }
 }

@@ -160,7 +160,7 @@ describe("FarmsController", () => {
       farm2 = {
         name: "Test Farm 2",
         size: 10,
-        yield: 200,
+        yield: 150,
         address: "Andersenstr. 4 10439",
         owner: user2,
       };
@@ -172,6 +172,7 @@ describe("FarmsController", () => {
       const res = await agent
         .get("/api/farms")
         .set("Authorization", `Bearer ${userOutputDto1.token}`)
+        .query({ prop: "yield", orderToSort: "DESC" })
         .send({ ...input, size: -1 });
 
       expect(res.statusCode).toBe(201);
