@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   postgres:
-    container_name: agreena-postgres-new
+    container_name: agreena-postgres-current
     image: postgres
     environment:
       POSTGRES_USER: postgres
@@ -19,7 +19,7 @@ services:
       - postgres
 
   pgadmin:
-    container_name: agreena_pg-admin-new
+    container_name: agreena_pg-admin-current
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: postgres@gmail.com

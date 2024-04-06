@@ -13,6 +13,7 @@ interface userQuery {
 }
 
 export class FarmsService {
+  [x: string]: any;
   private readonly farmsRepository: Repository<Farm>;
 
   constructor() {
