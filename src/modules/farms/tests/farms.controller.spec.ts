@@ -177,7 +177,7 @@ describe("FarmsController", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body).toMatchObject({
         name: "BadRequestError",
-        message: `Cannot sort by ${expectedProp}`,
+        message: `propertyToSortBy should not be empty`,
       });
     });
     it("should return all users farms", async () => {

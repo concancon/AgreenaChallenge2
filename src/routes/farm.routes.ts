@@ -1,7 +1,10 @@
 import { RequestHandler, Router } from "express";
 import { authMiddleware } from "middlewares/auth.middleware";
 import { validateInputMiddleware } from "middlewares/validate-input.middleware";
+import { validateSortInputMiddleware } from "middlewares/validate-sort-input.middleware";
 import { CreateFarmInputDto } from "modules/farms/dto/create-farm.input.dto";
+import { SortFarmsInputDto } from "modules/farms/dto/sort-farms.input.dto";
+//import { SortFarmsInputDto } from "modules/farms/dto/sort-farms.input.dto";
 import { FarmsController } from "modules/farms/farms.controller";
 
 const router = Router();
@@ -39,6 +42,10 @@ router.post(
   farmsController.create.bind(farmsController) as RequestHandler,
 );
 
-router.get("/", [authMiddleware], farmsController.get.bind(farmsController) as RequestHandler);
+router.get(
+  "/",
+  [authMiddleware, validateSortInputMiddleware(SortFarmsInputDto)],
+  farmsController.get.bind(farmsController) as RequestHandler,
+);
 
 export default router;

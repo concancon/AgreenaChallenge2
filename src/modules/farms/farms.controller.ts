@@ -3,17 +3,16 @@ import { FarmsService } from "./farms.service";
 
 import { CreateFarmInputDto } from "./dto/create-farm.input.dto";
 import { CreateFarmOutputDto } from "./dto/create-farm.output.dto";
-import { instanceToPlain, plainToInstance } from "class-transformer";
+import { instanceToPlain } from "class-transformer";
 import { AddressService } from "modules/address/address.service";
 import { User } from "modules/users/entities/user.entity";
 import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
 import { SortFarmsInputDto } from "./dto/sort-farms.input.dto";
-import { BadRequestError } from "errors/errors";
-//import { QueryFarmInputDto } from "./dto/query-farm-input.dto";
 
 declare module "express-serve-static-core" {
   interface Request {
     user?: User;
+    sortFarmsInputDto?: SortFarmsInputDto;
   }
 }
 
@@ -39,12 +38,10 @@ export class FarmsController {
 
   public async get(req: Request, res: Response, next: NextFunction) {
     try {
-      const sortFarmsInputDto = plainToInstance(SortFarmsInputDto, { propertyToSortBy: req.query.prop });
-      if (!sortFarmsInputDto.propertyToSortBy) {
-        throw new BadRequestError(`Cannot sort by ${req.query.prop}`);
-      }
+      const sortFarmsInputDto = req.sortFarmsInputDto?.propertyToSortBy;
+
       const farms = await this.farmsService.getAllFarms({
-        sortBy: { prop: sortFarmsInputDto.propertyToSortBy[0], orderToSort: sortFarmsInputDto.propertyToSortBy[1] },
+        sortBy: { prop: sortFarmsInputDto![0], orderToSort: sortFarmsInputDto![1] },
       });
       const user = req.user as User;
       const allDestinations = farms.map(l => l.coordinates) as [{ lat: number; lng: number }];

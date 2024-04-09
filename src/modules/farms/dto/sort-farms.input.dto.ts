@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsObject } from "class-validator";
+import { IsNotEmpty } from "class-validator";
 import { Transform } from "class-transformer";
 
 /**
@@ -22,7 +22,7 @@ export class SortFarmsInputDto {
   constructor(partial?: Partial<SortFarmsInputDto>) {
     Object.assign(this, partial);
   }
-  @IsObject()
+
   @IsNotEmpty()
   @Transform(({ value }) => SortableProperties[value as keyof typeof SortableProperties])
   public propertyToSortBy: [string, string];
