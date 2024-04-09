@@ -169,6 +169,17 @@ describe("FarmsController", () => {
         message: "size must not be less than 1",
       });
     });
+
+    it("should throw an error if query param is not one of predefined sort options", async () => {
+      const expectedProp = "owner";
+
+      const res = await agent.get("/api/farms").set("Authorization", `Bearer ${token1}`).query({ prop: expectedProp });
+      expect(res.statusCode).toBe(400);
+      expect(res.body).toMatchObject({
+        name: "BadRequestError",
+        message: `Cannot sort by ${expectedProp}`,
+      });
+    });
     it("should return all users farms", async () => {
       const expectedProp = "YIELD";
       const expectedOrder = "ASC";
