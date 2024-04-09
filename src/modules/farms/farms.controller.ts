@@ -3,10 +3,11 @@ import { FarmsService } from "./farms.service";
 
 import { CreateFarmInputDto } from "./dto/create-farm.input.dto";
 import { CreateFarmOutputDto } from "./dto/create-farm.output.dto";
-import { instanceToPlain } from "class-transformer";
+import { instanceToPlain, plainToClass } from "class-transformer";
 import { AddressService } from "modules/address/address.service";
 import { User } from "modules/users/entities/user.entity";
 import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
+import { SortFarmsInputDto } from "./dto/sort-farms.input.dto";
 //import { QueryFarmInputDto } from "./dto/query-farm-input.dto";
 
 declare module "express-serve-static-core" {
@@ -37,9 +38,12 @@ export class FarmsController {
 
   public async get(req: Request, res: Response, next: NextFunction) {
     try {
-      const prop = req.query.prop as string;
-      const orderToSort = req.query.orderToSort as string;
-      const farms = await this.farmsService.getAllFarms({ sortBy: { prop, orderToSort } });
+      const {
+        propertyToSortBy: [property, order],
+      } = plainToClass(SortFarmsInputDto, { propertyToSortBy: req.query.prop });
+      const farms = await this.farmsService.getAllFarms({
+        sortBy: { prop: property, orderToSort: order },
+      });
       const user = req.user as User;
       const allDestinations = farms.map(l => l.coordinates) as [{ lat: number; lng: number }];
       const response = await this.addressService.getDistanceMatrix({ origin: user.coordinates, destinations: allDestinations });

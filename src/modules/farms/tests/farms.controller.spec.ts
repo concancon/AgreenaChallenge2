@@ -170,8 +170,8 @@ describe("FarmsController", () => {
       });
     });
     it("should return all users farms", async () => {
-      const expectedProp = "yield";
-      const expectedOrder = "DESC";
+      const expectedProp = "YIELD";
+      const expectedOrder = "ASC";
       const destination1 = { lat: 42, lng: 42 };
       const destination2 = { lat: 36, lng: 36 };
       const origin = expectedCoordinates;
