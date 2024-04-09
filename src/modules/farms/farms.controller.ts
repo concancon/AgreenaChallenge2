@@ -3,7 +3,7 @@ import { FarmsService } from "./farms.service";
 
 import { CreateFarmInputDto } from "./dto/create-farm.input.dto";
 import { CreateFarmOutputDto } from "./dto/create-farm.output.dto";
-import { instanceToPlain, plainToClass } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { AddressService } from "modules/address/address.service";
 import { User } from "modules/users/entities/user.entity";
 import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
@@ -39,7 +39,7 @@ export class FarmsController {
 
   public async get(req: Request, res: Response, next: NextFunction) {
     try {
-      const sortFarmsInputDto = plainToClass(SortFarmsInputDto, { propertyToSortBy: req.query.prop });
+      const sortFarmsInputDto = plainToInstance(SortFarmsInputDto, { propertyToSortBy: req.query.prop });
       if (!sortFarmsInputDto.propertyToSortBy) {
         throw new BadRequestError(`Cannot sort by ${req.query.prop}`);
       }
