@@ -14,8 +14,8 @@ import { Transform } from "class-transformer";
 
 class SortableProperties {
   public static readonly NAME: [string, string] = ["NAME", "ASC"];
-  public static readonly YIELD: [string, string] = ["YIELD", "ASC"];
-  public static readonly DRIVINGDISTANCE: [string, string] = ["DRIVINGDISTANCE", "ASC"];
+  public static readonly DATE: [string, string] = ["DATE", "ASC"];
+  public static readonly DRIVINGDISTANCE: [string, string] = ["DRIVING_DISTANCE", "ASC"];
 }
 
 export class SortFarmsInputDto {

@@ -181,7 +181,7 @@ describe("FarmsController", () => {
       });
     });
     it("should return all users farms", async () => {
-      const expectedProp = "YIELD";
+      const expectedProp = "DATE";
       const expectedOrder = "ASC";
       const destination1 = { lat: 42, lng: 42 };
       const destination2 = { lat: 36, lng: 36 };
@@ -206,7 +206,7 @@ describe("FarmsController", () => {
         .get("/api/farms")
         .set("Authorization", `Bearer ${token1}`)
         .query({ prop: expectedProp, orderToSort: expectedOrder })
-        .send({ ...farm, size: -1 });
+        .send();
 
       expect(res.statusCode).toBe(201);
 
