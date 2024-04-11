@@ -13,8 +13,8 @@ import { Transform } from "class-transformer";
  */
 
 class SortableProperties {
-  public static readonly NAME: [string, string] = ["NAME", "ASC"];
-  public static readonly DATE: [string, string] = ["DATE", "ASC"];
+  public static readonly NAME: [string, string] = ["name", "ASC"];
+  public static readonly DATE: [string, string] = ["createdAt", "ASC"];
   public static readonly DRIVINGDISTANCE: [string, string] = ["DRIVING_DISTANCE", "ASC"];
 }
 

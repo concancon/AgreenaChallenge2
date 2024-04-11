@@ -193,7 +193,7 @@ describe("FarmsController", () => {
       ] as Farm[]);
       const farmsService = new FarmsService();
       when(farmsService.getAllFarms)
-        .calledWith({ sortBy: { prop: expectedProp, orderToSort: expectedOrder } })
+        .calledWith({ sortBy: { prop: "createdAt", orderToSort: expectedOrder } })
         .mockReturnValue(expectedResponse);
 
       const addressService = new AddressService();
