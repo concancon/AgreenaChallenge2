@@ -4,11 +4,12 @@ import { Farm } from "./entities/farm.entity";
 import { UnprocessableEntityError } from "errors/errors";
 import { CreateFarmWithCoordinatesInputDto } from "./dto/create-farm-with-coordinates.input.dto";
 //import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
+import { FarmRepository } from "./repo/farm.repository";
 
 interface userQuery {
   sortBy: {
     prop: string;
-    orderToSort: string;
+    orderToSort: undefined | "ASC" | "DESC";
   };
 }
 
@@ -39,7 +40,7 @@ export class FarmsService {
   }
 
   public async getAllFarms({ sortBy: { prop, orderToSort } }: userQuery): Promise<Farm[]> {
-    const allFarms = await this.farmsRepository.find({ order: { [prop]: orderToSort } });
+    const allFarms = await FarmRepository.findWithSort(prop, orderToSort);
     if (allFarms.length === 0) {
       throw new Error("No Farms exist");
     }

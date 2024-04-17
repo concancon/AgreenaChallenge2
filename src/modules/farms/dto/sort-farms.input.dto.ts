@@ -25,5 +25,5 @@ export class SortFarmsInputDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => SortableProperties[value as keyof typeof SortableProperties])
-  public propertyToSortBy: [string, string];
+  public propertyToSortBy: [string, "ASC" | "DESC" | undefined];
 }

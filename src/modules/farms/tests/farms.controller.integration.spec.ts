@@ -19,9 +19,9 @@ describe("FarmsController", () => {
   let farm: CreateFarmInputDto;
   let userOutputDto: LoginUserOutputDto;
   const validPassword = "password";
-
+  let userAddress: string, userAddress1: string, userAddress2: string;
   let farm1: CreateFarmInputDto, farm2: CreateFarmInputDto;
-  let user: User;
+  let user0: User;
   let user1: User, user2: User;
   let token: string, token1: string, token2: string;
 
@@ -36,13 +36,13 @@ describe("FarmsController", () => {
     };
 
     const createUserRes = await agent.post("/api/users").send(createUserDto);
-    user = createUserRes.body as User;
+    const createdUser = createUserRes.body as User;
     const loginDto: LoginUserInputDto = { email: userEmail, password: validPassword };
 
     const loginUserRes = await agent.post("/api/auth/login").send(loginDto);
     userOutputDto = loginUserRes.body as LoginUserOutputDto;
     userCount++;
-    return { user, token: userOutputDto.token };
+    return { user: createdUser, token: userOutputDto.token };
   }
 
   beforeAll(async () => {
@@ -62,42 +62,42 @@ describe("FarmsController", () => {
 
     agent = supertest.agent(app);
 
-    const userAddress = "Andersenstr. 3 10439";
-    ({ token, user } = await createUserWithAddressAndLogin(userAddress));
-    const userAddress1 = "Andersenstr. 3 10439";
+    userAddress = "Andersenstr. 3 10439";
+    ({ token, user: user0 } = await createUserWithAddressAndLogin(userAddress));
+    userAddress1 = "Friedenstr. 10 10249";
     ({ token: token1, user: user1 } = await createUserWithAddressAndLogin(userAddress1));
-    const userAddress2 = "Andersenstr. 4 10439";
+    userAddress2 = "Finowstr. 32 10247";
     ({ token: token2, user: user2 } = await createUserWithAddressAndLogin(userAddress2));
-
     farm = {
-      name: "Test Farm",
-      size: 10,
-      yield: 200,
-      address: userAddress,
-      owner: user,
-    };
-    farm1 = {
-      name: "Test Farm 1",
+      name: "Freezing Farm",
       size: 10,
       yield: 300,
       address: userAddress,
+      owner: user0,
+    };
+
+    farm1 = {
+      name: "Rancho cucamonga",
+      size: 10,
+      yield: 200,
+      address: userAddress1,
       owner: user1,
     };
 
     farm2 = {
-      name: "Test Farm 2",
+      name: "Under water farm",
       size: 10,
       yield: 150,
       address: userAddress2,
       owner: user2,
     };
-    farm2 = {
-      name: "Test Farm 3",
-      size: 10,
-      yield: 600,
-      address: userAddress2,
-      owner: user2,
-    };
+    // farm3 = {
+    //   name: "Test Farm 3",
+    //   size: 10,
+    //   yield: 600,
+    //   address: userAddress2,
+    //   owner: user2,
+    // };
 
     await agent.post("/api/farms").set("Authorization", `Bearer ${token}`).send(farm);
     await agent.post("/api/farms").set("Authorization", `Bearer ${token1}`).send(farm1);
@@ -106,48 +106,51 @@ describe("FarmsController", () => {
 
   describe("POST /farms", () => {
     it("should return all users farms", async () => {
-      const expectedProp = "DATE";
+      const expectedProp = "NAME";
       const expectedOrder = "ASC";
 
       const res = await agent
         .get("/api/farms")
-        .set("Authorization", `Bearer ${token1}`)
-        .query({ prop: expectedProp, orderToSort: expectedOrder })
+        .set("Authorization", `Bearer ${token}`)
+        .query({ prop: expectedProp, expectedOrder })
         .send();
 
       expect(res.statusCode).toBe(201);
       const expectedFarm = {
         id: expect.any(String),
-        address: "Andersenstr. 3 10439",
         name: farm.name,
-        size: farm.size,
         yield: farm.yield,
+        size: farm.size,
         createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        owner: { ...user, createdAt: expect.any(String), updatedAt: expect.any(String) },
+        address: userAddress,
+        coordinates: { lat: 52.5552274, lng: 13.404094 },
         drivingDistance: 0,
+        updatedAt: expect.any(String),
+        owner: { ...user0, createdAt: expect.any(String), updatedAt: expect.any(String) },
       };
       const expectedFarm1 = {
         id: expect.any(String),
-        address: "Andersenstr. 3 10439",
+        address: "Friedenstr. 10 10249",
+        coordinates: { lat: 52.5260826, lng: 13.4282901 },
         name: farm1.name,
         size: farm1.size,
         yield: farm1.yield,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
         owner: { ...user1, createdAt: expect.any(String), updatedAt: expect.any(String) },
-        drivingDistance: 0,
+        drivingDistance: 5001,
       };
       const expectedFarm2 = {
         id: expect.any(String),
-        address: "Andersenstr. 4 10439",
+        address: "Finowstr. 32 10247",
+        coordinates: { lat: 52.51233999999999, lng: 13.4684702 },
         name: farm2.name,
         size: farm2.size,
         yield: farm2.yield,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
         owner: { ...user2, createdAt: expect.any(String), updatedAt: expect.any(String) },
-        drivingDistance: 18,
+        drivingDistance: 7824,
       };
       const receivedFarms = res.body as GetManyFarmsOutputDto;
       expect(receivedFarms.farms[0]).toMatchObject({ ...expectedFarm });
