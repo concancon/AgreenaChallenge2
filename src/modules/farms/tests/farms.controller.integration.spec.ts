@@ -91,13 +91,6 @@ describe("FarmsController", () => {
       address: userAddress2,
       owner: user2,
     };
-    // farm3 = {
-    //   name: "Test Farm 3",
-    //   size: 10,
-    //   yield: 600,
-    //   address: userAddress2,
-    //   owner: user2,
-    // };
 
     await agent.post("/api/farms").set("Authorization", `Bearer ${token}`).send(farm);
     await agent.post("/api/farms").set("Authorization", `Bearer ${token1}`).send(farm1);
