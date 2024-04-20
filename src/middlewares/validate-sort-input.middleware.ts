@@ -8,7 +8,7 @@ import { SortFarmsInputDto } from "modules/farms/dto/sort-farms.input.dto";
 export function validateSortInputMiddleware(validationSchema: ClassConstructor<object>) {
   return async (req: Request, _: Response, next: NextFunction): Promise<void> => {
     try {
-      const sortFarmsInputDto = plainToInstance(validationSchema, { propertyToSortBy: req.query.prop });
+      const sortFarmsInputDto = plainToInstance(validationSchema, { sortByAndOrder: req.query.prop });
       const validationErrors = await validate(sortFarmsInputDto);
 
       if (validationErrors.length > 0) {

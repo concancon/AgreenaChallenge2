@@ -177,7 +177,7 @@ describe("FarmsController", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body).toMatchObject({
         name: "BadRequestError",
-        message: `propertyToSortBy should not be empty`,
+        message: `sortByAndOrder should not be empty`,
       });
     });
     it("should return all users farms", async () => {
@@ -192,9 +192,7 @@ describe("FarmsController", () => {
         { ...farm2, coordinates: destination2, createdAt: new Date(), updatedAt: new Date(), id: "123456" },
       ] as Farm[]);
       const farmsService = new FarmsService();
-      when(farmsService.getAllFarms)
-        .calledWith({ sortBy: { prop: "createdAt", orderToSort: expectedOrder } })
-        .mockReturnValue(expectedResponse);
+      when(farmsService.getAllFarms).calledWith("createdAt", expectedOrder).mockReturnValue(expectedResponse);
 
       const addressService = new AddressService();
       const expectedResponseForDistance = Promise.resolve([0, 18]);

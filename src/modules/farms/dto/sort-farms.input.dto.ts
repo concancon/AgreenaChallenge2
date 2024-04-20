@@ -8,14 +8,14 @@ import { Transform } from "class-transformer";
  *    SortFarmsInputDto:
  *      type: object
  *      properties:
- *        propertyToSortBy:
+ *        sortByAndOrder:
  *          type: SortableProperties
  */
 
 class SortableProperties {
   public static readonly NAME: [string, string] = ["name", "ASC"];
   public static readonly DATE: [string, string] = ["createdAt", "ASC"];
-  public static readonly DRIVINGDISTANCE: [string, string] = ["DRIVING_DISTANCE", "ASC"];
+  public static readonly DRIVINGDISTANCE: [string, string] = ["driving_distance", "ASC"];
 }
 
 export class SortFarmsInputDto {
@@ -25,5 +25,5 @@ export class SortFarmsInputDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => SortableProperties[value as keyof typeof SortableProperties])
-  public propertyToSortBy: [string, "ASC" | "DESC" | undefined];
+  public sortByAndOrder: ["name" | "createdAt" | "driving_distance" | undefined, "ASC" | "DESC" | undefined];
 }

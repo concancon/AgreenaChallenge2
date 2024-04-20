@@ -6,13 +6,6 @@ import { CreateFarmWithCoordinatesInputDto } from "./dto/create-farm-with-coordi
 //import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
 import { FarmRepository } from "./repo/farm.repository";
 
-interface userQuery {
-  sortBy: {
-    prop: string;
-    orderToSort: undefined | "ASC" | "DESC";
-  };
-}
-
 export class FarmsService {
   [x: string]: any;
   private readonly farmsRepository: Repository<Farm>;
@@ -39,8 +32,16 @@ export class FarmsService {
     return this.farmsRepository.save(newFarm);
   }
 
-  public async getAllFarms({ sortBy: { prop, orderToSort } }: userQuery): Promise<Farm[]> {
-    const allFarms = await FarmRepository.findWithSort(prop, orderToSort);
+  public async getAllFarms(
+    prop: "name" | "createdAt" | "driving_distance" | undefined,
+    orderToSort?: "ASC" | "DESC",
+  ): Promise<Farm[]> {
+    let allFarms;
+    if (prop === "driving_distance") {
+      allFarms = await FarmRepository.getAll();
+    } else {
+      allFarms = await FarmRepository.findWithSort(prop, orderToSort);
+    }
     if (allFarms.length === 0) {
       throw new Error("No Farms exist");
     }
