@@ -1,21 +1,22 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 import { Transform } from "class-transformer";
-
 /**
- * @openapi
- * components:
- *  schemas:
- *    SortFarmsInputDto:
- *      type: object
- *      properties:
- *        sortByAndOrder:
- *          type: SortableProperties
- */
+#  * @openapi
+#  * components:
+#  *  schemas:
+#  *    SortFarmsInputDto:
+#  *      type: object
+#  *      properties:
+#  *        sortBy:
+#  *          type: "name" | "createdAt" | "driving_distance"
+#  *        filter:
+#  *          type: boolean | undefined
+#  */
 
 class SortableProperties {
-  public static readonly NAME: [string, string] = ["name", "ASC"];
-  public static readonly DATE: [string, string] = ["createdAt", "ASC"];
-  public static readonly DRIVINGDISTANCE: [string, string] = ["driving_distance", "ASC"];
+  public static readonly NAME: string = "name";
+  public static readonly DATE: string = "createdAt";
+  public static readonly DRIVINGDISTANCE: string = "driving_distance";
 }
 
 export class SortFarmsInputDto {
@@ -25,5 +26,8 @@ export class SortFarmsInputDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => SortableProperties[value as keyof typeof SortableProperties])
-  public sortByAndOrder: ["name" | "createdAt" | "driving_distance" | undefined, "ASC" | "DESC" | undefined];
+  public sortBy: "name" | "createdAt" | "driving_distance";
+
+  @IsOptional()
+  public filter: "true" | "false" | "undefined";
 }

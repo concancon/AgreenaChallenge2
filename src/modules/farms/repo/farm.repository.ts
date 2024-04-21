@@ -3,31 +3,21 @@ import { Farm } from "../entities/farm.entity";
 
 const farmRepo = dataSource.getRepository(Farm);
 export const FarmRepository = farmRepo.extend({
-  findWithSort(
+  async findWithSort(
     this: typeof farmRepo,
-    sortByAndOrder: "name" | "createdAt" | "driving_distance" | undefined,
-    orderToSort?: "ASC" | "DESC",
+    sortBy: "name" | "createdAt" | "driving_distance",
+    filter: boolean | undefined,
   ): Promise<Farm[]> {
-    const queryBuilder = this.createQueryBuilder("farm");
-    //const greaterThan = ">";
-    //const lessThan = "<";
-    return (
-      queryBuilder
-        .setFindOptions({
-          loadEagerRelations: true,
-        })
-        .orderBy(`farm.${sortByAndOrder}`, orderToSort)
-        .select()
-        //.where(`farm.yield ${greaterThan} (SELECT AVG(yield) FROM farm)`, {})
-        .getMany()
-    );
-  },
-  getAll(this: typeof farmRepo): Promise<Farm[]> {
-    const queryBuilder = this.createQueryBuilder("farm");
-    return queryBuilder
-      .setFindOptions({
-        loadEagerRelations: true,
-      })
-      .getMany();
+    const queryBuilder = this.createQueryBuilder("farm").setFindOptions({
+      loadEagerRelations: true,
+    });
+    if (sortBy !== "driving_distance") {
+      queryBuilder.orderBy(`farm.${sortBy}`, "ASC");
+    }
+    if (filter) {
+      queryBuilder.select().where(`farm.yield > (SELECT AVG(f.yield) * 0.3 + AVG(f.yield) FROM farm f)`);
+      queryBuilder.orWhere(`farm.yield < (SELECT AVG(f.yield) - AVG(f.yield) * 0.3 FROM farm f)`);
+    }
+    return queryBuilder.getMany();
   },
 });

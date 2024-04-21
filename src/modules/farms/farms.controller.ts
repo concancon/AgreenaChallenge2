@@ -37,9 +37,10 @@ export class FarmsController {
 
   public async get(req: Request, res: Response, next: NextFunction) {
     try {
-      const sortFarmsInputDto = req.sortFarmsInputDto.sortByAndOrder;
+      const sortBy = req.sortFarmsInputDto.sortBy;
+      const filter = req.sortFarmsInputDto.filter === "true" ? true : false;
 
-      const farms = await this.farmsService.getAllFarms(sortFarmsInputDto[0], sortFarmsInputDto[1]);
+      const farms = await this.farmsService.getAllFarms(sortBy, filter);
       const user = req.user;
       const allDestinations = farms.map(l => l.coordinates) as [{ lat: number; lng: number }];
       const response = await this.addressService.getDistanceMatrix({ origin: user.coordinates, destinations: allDestinations });
@@ -47,7 +48,7 @@ export class FarmsController {
       for (let i = 0; i < farms.length; i++) {
         farmsWithDistanceToUser.farms.push({ ...farms[i], drivingDistance: response[i] });
       }
-      if (sortFarmsInputDto[0] === "driving_distance") {
+      if (sortBy === "driving_distance") {
         farmsWithDistanceToUser.farms.sort((farm1, farm2) => farm1.drivingDistance - farm2.drivingDistance);
       }
       res.status(201).send(instanceToPlain(new GetManyFarmsOutputDto(farmsWithDistanceToUser)));
