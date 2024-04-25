@@ -45,6 +45,25 @@ describe("FarmsController", () => {
     return { user: createdUser, token: userOutputDto.token };
   }
 
+  function createExpectationsForFarm(
+    farm: CreateFarmInputDto,
+    coordinates: { lat: number; lng: number },
+    drivingDistance: number,
+  ) {
+    return {
+      id: expect.any(String),
+      name: farm.name,
+      yield: farm.yield,
+      size: farm.size,
+      createdAt: expect.any(String),
+      address: farm.address,
+      coordinates,
+      drivingDistance,
+      updatedAt: expect.any(String),
+      owner: { ...farm.owner, createdAt: expect.any(String), updatedAt: expect.any(String) },
+    };
+  }
+
   beforeAll(async () => {
     app = setupServer();
     await ds.initialize();
@@ -77,7 +96,7 @@ describe("FarmsController", () => {
     };
 
     farm1 = {
-      name: "Under water farm",
+      name: "Under Water Farm",
       size: 10,
       yield: 200,
       address: userAddress1,
@@ -85,7 +104,7 @@ describe("FarmsController", () => {
     };
 
     farm2 = {
-      name: "Rancho cucamonga",
+      name: "Rancho Cucamonga",
       size: 10,
       yield: 120,
       address: userAddress2,
@@ -99,146 +118,65 @@ describe("FarmsController", () => {
 
   describe("POST /farms", () => {
     it("should return all users farms sorted by name", async () => {
-      const expectedProp = "NAME";
+      const sortBy = "NAME";
 
       const res = await agent
         .get("/api/farms")
         .set("Authorization", `Bearer ${token}`)
-        .query({ prop: expectedProp, filter: undefined })
+        .query({ prop: sortBy, filter: undefined })
         .send();
 
       expect(res.statusCode).toBe(201);
-      const expectedFarm = {
-        id: expect.any(String),
-        name: farm.name,
-        yield: farm.yield,
-        size: farm.size,
-        createdAt: expect.any(String),
-        address: userAddress,
-        coordinates: { lat: 52.5552274, lng: 13.404094 },
-        drivingDistance: 0,
-        updatedAt: expect.any(String),
-        owner: { ...user0, createdAt: expect.any(String), updatedAt: expect.any(String) },
-      };
-      const expectedFarm1 = {
-        id: expect.any(String),
-        address: "Finowstr. 32 10247",
-        coordinates: { lat: 52.51233999999999, lng: 13.4684702 },
-        name: farm2.name,
-        size: farm2.size,
-        yield: farm2.yield,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        owner: { ...user2, createdAt: expect.any(String), updatedAt: expect.any(String) },
-        drivingDistance: 7824,
-      };
-      const expectedFarm2 = {
-        id: expect.any(String),
-        address: "Friedenstr. 10 10249",
-        coordinates: { lat: 52.5260826, lng: 13.4282901 },
-        name: farm1.name,
-        size: farm1.size,
-        yield: farm1.yield,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        owner: { ...user1, createdAt: expect.any(String), updatedAt: expect.any(String) },
-        drivingDistance: 5001,
-      };
       const receivedFarms = res.body as GetManyFarmsOutputDto;
-      expect(receivedFarms.farms[0]).toMatchObject({ ...expectedFarm });
-      expect(receivedFarms.farms[1]).toMatchObject({ ...expectedFarm1 });
-      expect(receivedFarms.farms[2]).toMatchObject({ ...expectedFarm2 });
+
+      const expectedFarm = createExpectationsForFarm(farm, { lat: 52.5552274, lng: 13.404094 }, 0);
+      const expectedFarm1 = createExpectationsForFarm(farm2, { lat: 52.51233999999999, lng: 13.4684702 }, 7824);
+      const expectedFarm2 = createExpectationsForFarm(farm1, { lat: 52.5260826, lng: 13.4282901 }, 5509);
+      const expectedFarms = [expectedFarm, expectedFarm1, expectedFarm2];
+
+      expect(receivedFarms.farms[0]).toMatchObject({ ...expectedFarms.find(l => l.name === "Freezing Farm") });
+      expect(receivedFarms.farms[1]).toMatchObject({ ...expectedFarms.find(l => l.name === "Rancho Cucamonga") });
+      expect(receivedFarms.farms[2]).toMatchObject({ ...expectedFarms.find(l => l.name === "Underwater Farm") });
     });
 
     it("should return all users farms sorted by driving distance", async () => {
-      const expectedProp = "DRIVINGDISTANCE";
+      const sortBy = "DRIVINGDISTANCE";
 
       const res = await agent
         .get("/api/farms")
         .set("Authorization", `Bearer ${token}`)
-        .query({ prop: expectedProp, filter: undefined })
+        .query({ prop: sortBy, filter: undefined })
         .send();
 
       expect(res.statusCode).toBe(201);
-      const expectedFarm = {
-        drivingDistance: 0,
-        id: expect.any(String),
-        name: farm.name,
-        yield: farm.yield,
-        size: farm.size,
-        createdAt: expect.any(String),
-        address: userAddress,
-        coordinates: { lat: 52.5552274, lng: 13.404094 },
-        updatedAt: expect.any(String),
-        owner: { ...user0, createdAt: expect.any(String), updatedAt: expect.any(String) },
-      };
-      const expectedFarm1 = {
-        drivingDistance: 5001,
-        id: expect.any(String),
-        address: "Friedenstr. 10 10249",
-        coordinates: { lat: 52.5260826, lng: 13.4282901 },
-        name: farm1.name,
-        size: farm1.size,
-        yield: farm1.yield,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        owner: { ...user1, createdAt: expect.any(String), updatedAt: expect.any(String) },
-      };
-      const expectedFarm2 = {
-        drivingDistance: 7824,
-        id: expect.any(String),
-        address: "Finowstr. 32 10247",
-        coordinates: { lat: 52.51233999999999, lng: 13.4684702 },
-        name: farm2.name,
-        size: farm2.size,
-        yield: farm2.yield,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        owner: { ...user2, createdAt: expect.any(String), updatedAt: expect.any(String) },
-      };
+
       const receivedFarms = res.body as GetManyFarmsOutputDto;
-      expect(receivedFarms.farms[0]).toMatchObject({ ...expectedFarm });
-      expect(receivedFarms.farms[1]).toMatchObject({ ...expectedFarm1 });
-      expect(receivedFarms.farms[2]).toMatchObject({ ...expectedFarm2 });
+      const expectedFarm = createExpectationsForFarm(farm, { lat: 52.5552274, lng: 13.404094 }, 0);
+      const expectedFarm1 = createExpectationsForFarm(farm1, { lat: 52.5260826, lng: 13.4282901 }, 5509);
+      const expectedFarm2 = createExpectationsForFarm(farm2, { lat: 52.51233999999999, lng: 13.4684702 }, 7824);
+      const expectedFarms = [expectedFarm, expectedFarm1, expectedFarm2];
+
+      expect(receivedFarms.farms[0]).toMatchObject({ ...expectedFarms.find(l => l.drivingDistance === 0) });
+      expect(receivedFarms.farms[1]).toMatchObject({ ...expectedFarms.find(l => l.drivingDistance === 5509) });
+      expect(receivedFarms.farms[2]).toMatchObject({ ...expectedFarms.find(l => l.drivingDistance === 7824) });
     });
-    it("should return outliers (the yield of a farm is 30% below or above of the average yield of all farms)", async () => {
-      const expectedProp = "DRIVINGDISTANCE";
+    it("should return outliers (the yield of a farm is 30% below or above of the average yield of all farms) AND apply sorting criteria", async () => {
+      const sortBy = "DRIVINGDISTANCE";
 
       const res = await agent
         .get("/api/farms")
         .set("Authorization", `Bearer ${token}`)
-        .query({ prop: expectedProp, filter: true })
+        .query({ prop: sortBy, filter: true })
         .send();
 
       expect(res.statusCode).toBe(201);
-      const expectedFarm = {
-        drivingDistance: 0,
-        id: expect.any(String),
-        name: farm.name,
-        yield: farm.yield,
-        size: farm.size,
-        createdAt: expect.any(String),
-        address: farm.address,
-        coordinates: { lat: 52.5552274, lng: 13.404094 },
-        updatedAt: expect.any(String),
-        owner: { ...user0, createdAt: expect.any(String), updatedAt: expect.any(String) },
-      };
-      const expectedFarm1 = {
-        id: expect.any(String),
-        address: "Finowstr. 32 10247",
-        coordinates: { lat: 52.51233999999999, lng: 13.4684702 },
-        name: farm2.name,
-        size: farm2.size,
-        yield: farm2.yield,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        owner: { ...user2, createdAt: expect.any(String), updatedAt: expect.any(String) },
-        drivingDistance: 7824,
-      };
+      const expectedFarm = createExpectationsForFarm(farm, { lat: 52.5552274, lng: 13.404094 }, 0);
+      const expectedFarm1 = createExpectationsForFarm(farm2, { lat: 52.51233999999999, lng: 13.4684702 }, 7824);
+      const expectedFarms = [expectedFarm, expectedFarm1];
 
       const receivedFarms = res.body as GetManyFarmsOutputDto;
-      expect(receivedFarms.farms[0]).toMatchObject({ ...expectedFarm });
-      expect(receivedFarms.farms[1]).toMatchObject({ ...expectedFarm1 });
+      expect(receivedFarms.farms[0]).toMatchObject({ ...expectedFarms.find(l => l.drivingDistance === 0) });
+      expect(receivedFarms.farms[1]).toMatchObject({ ...expectedFarms.find(l => l.drivingDistance === 7824) });
     });
   });
 });
