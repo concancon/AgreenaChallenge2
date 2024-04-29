@@ -18,6 +18,6 @@ export const FarmRepository = farmRepo.extend({
       queryBuilder.select().where(`farm.yield > (SELECT AVG(f.yield) * 0.3 + AVG(f.yield) FROM farm f)`);
       queryBuilder.orWhere(`farm.yield < (SELECT AVG(f.yield) - AVG(f.yield) * 0.3 FROM farm f)`);
     }
-    return queryBuilder.getMany();
+    return queryBuilder.limit(100).getMany();
   },
 });

@@ -49,7 +49,7 @@ describe("AddressService", () => {
 
       await addressService.getCoordinatesFromAddress(inputAddress).catch((error: BadRequestError) => {
         expect(error).toBeInstanceOf(BadRequestError);
-        expect(error.message).toBe("Address not found");
+        expect(error.message).toBe("Address: Invalid address not found");
       });
     });
 
