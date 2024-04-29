@@ -180,6 +180,33 @@ describe("FarmsController", () => {
         message: `sortBy should not be empty`,
       });
     });
+    it.only("should throw an error if calculating distance fails", async () => {
+      const expectedProp = "DATE";
+      const addressService = new AddressService();
+      const destination1 = { lat: 42, lng: 42 };
+
+      const expectedResponse = Promise.resolve([
+        { ...farm1, coordinates: destination1, createdAt: new Date(), updatedAt: new Date(), id: "123456" },
+      ] as Farm[]);
+
+      const farmsService = new FarmsService();
+
+      when(farmsService.getAllFarms).calledWith("createdAt", false).mockReturnValue(expectedResponse);
+      when(addressService.getDistanceMatrix)
+        .calledWith({
+          origin: { lat: expect.any(Number), lng: expect.any(Number) },
+          destinations: [{ lat: expect.any(Number), lng: expect.any(Number) }],
+        })
+        .mockRejectedValue(new Error("oh no!"));
+
+      const res = await agent.get("/api/farms").set("Authorization", `Bearer ${token1}`).query({ prop: expectedProp });
+      expect(res.statusCode).toBe(500);
+      if (res.error) {
+        expect(res.error.text).toBe("oh no!");
+      } else {
+        fail("Expected an error object in the response");
+      }
+    });
     it("should return all users farms", async () => {
       const expectedProp = "DATE";
 

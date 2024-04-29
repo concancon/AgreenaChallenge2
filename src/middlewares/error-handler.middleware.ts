@@ -14,7 +14,7 @@ export function handleErrorMiddleware(error: Error, _: Request, res: Response, n
   } else if (error instanceof EntityNotFoundError) {
     res.status(404).send({ name: "EntityNotFoundError", message });
   } else {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send(message);
   }
 
   next();
