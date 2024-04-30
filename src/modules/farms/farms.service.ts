@@ -3,7 +3,6 @@ import dataSource from "orm/orm.config";
 import { Farm } from "./entities/farm.entity";
 import { UnprocessableEntityError } from "errors/errors";
 import { CreateFarmWithCoordinatesInputDto } from "./dto/create-farm-with-coordinates.input.dto";
-//import { GetManyFarmsOutputDto } from "./dto/get-many-farms.output.dto";
 import { FarmRepository } from "./repo/farm.repository";
 
 export class FarmsService {
@@ -33,11 +32,19 @@ export class FarmsService {
   }
 
   public async getAllFarms(prop: "name" | "createdAt" | "driving_distance", filter: boolean | undefined): Promise<Farm[]> {
-    const allFarms = await FarmRepository.findWithSort(prop, filter);
+    let currentPage = 1; // Start with the first page
+    const allFarms: Farm[] = []; // Array to store all fetched farms
+    const pageSize = 100;
+    for (;;) {
+      const [farms, totalCount]: [Farm[], number] = await FarmRepository.findWithSort(prop, filter, currentPage, pageSize);
+      allFarms.push(...farms);
 
-    if (allFarms.length === 0) {
-      throw new Error("No Farms exist");
+      if (allFarms.length >= totalCount) {
+        break;
+      }
+      currentPage++;
     }
+
     return allFarms;
   }
 }
