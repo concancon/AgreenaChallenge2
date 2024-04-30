@@ -12,7 +12,6 @@ describe("UsersController", () => {
   let app: Express;
   let agent: SuperAgentTest;
   let server: Server;
-
   let usersService: UsersService;
 
   beforeAll(async () => {
@@ -74,6 +73,16 @@ describe("UsersController", () => {
       expect(res.body).toMatchObject({
         name: "BadRequestError",
         message: "email must be an email, password must be a string, address should not be empty, address must be a string",
+      });
+    });
+
+    it("should throw an error and call next if calculating distance fails", async () => {
+      const res = await agent.post("/api/users").send({ ...createUserDto, address: "invalid address" });
+
+      expect(res.statusCode).toBe(400);
+      expect(res.body).toMatchObject({
+        name: "BadRequestError",
+        message: "Address: invalid address not found",
       });
     });
   });

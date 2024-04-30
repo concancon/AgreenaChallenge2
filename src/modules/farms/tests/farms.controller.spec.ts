@@ -180,7 +180,7 @@ describe("FarmsController", () => {
         message: `sortBy should not be empty`,
       });
     });
-    it.only("should throw an error if calculating distance fails", async () => {
+    it("should throw an error and call next if calculating distance fails", async () => {
       const expectedProp = "DATE";
       const addressService = new AddressService();
       const destination1 = { lat: 42, lng: 42 };
