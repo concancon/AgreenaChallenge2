@@ -154,7 +154,7 @@ Please explain in the Readme how to handle rate limitations for fetching driving
 - Max 25 results per request
 - Max 10 requests per second
 
-### Rate limiting the Google getMatrixDistance() request
+### Rate limiting the Google getDistanceMatrix() request
 #### Problem statement 
 The approach suggested in this document tries to ensure that the third party rate limitations are not exceeded while also ensuring that we provide the fastest and most reliable service to our users. The third party API we are using to calculate distance to farms is the Google API, and this one imposes the following limitations  
 - Max 25 results per request
@@ -170,3 +170,5 @@ We would baiscally like to demonstrate that our approach is sufficient to serve 
 
 #### Required resources 
 For this project to be implemented we will need a rate limiting module that will provide us the ability to insert a delay between requests, like the npm limiter package. We will also need tools to benchmark the performance of our requests, like javascript's performance.now() function and large and valid address data sets to test with (the included addresses.json file only contains 1000 farms).
+
+

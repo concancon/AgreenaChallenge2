@@ -227,7 +227,6 @@ describe("FarmsController", () => {
       const executionTime = endTime - startTime;
       console.log(`Execution time of farm creation: ${executionTime} milliseconds`);
       expect(farmCreationRes).toHaveLength(1000);
-      console.log(farmCreationRes.length);
       const sortBy = "NAME";
       const res2 = await agent
         .get("/api/farms")
@@ -235,9 +234,9 @@ describe("FarmsController", () => {
         .query({ prop: sortBy, filter: undefined })
         .send();
       const receivedFarms = res2.body as GetManyFarmsOutputDto;
-      //expect(receivedFarms.farms).toHaveLength(1000);
       console.log(receivedFarms.farms.length);
       expect(receivedFarms.farms.filter(l => !l.drivingDistance)).toHaveLength(0);
-    }, 300717); //118 * 1000 - 87646.
+      expect(receivedFarms.farms.filter(l => typeof l.drivingDistance != "number")).toHaveLength(0);
+    }, 300717);
   });
 });
