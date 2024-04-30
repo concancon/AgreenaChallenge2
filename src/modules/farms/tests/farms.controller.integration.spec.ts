@@ -185,7 +185,7 @@ describe("FarmsController", () => {
     // Function to generate a random farm object
     const generateRandomFarm = (address: string) => {
       return {
-        name: faker.company.name(),
+        name: `${faker.company.name()}${Math.random()}`,
         size: Math.floor(Math.random() * 100) + 1, // Random size between 1 and 100 acres
         yield: Math.floor(Math.random() * 200) + 50, // Random yield between 50 and 250 units
         address,
@@ -200,15 +200,15 @@ describe("FarmsController", () => {
       };
       return addressesData;
     };
-    // Function to create 100 farms
+
     const createFarms = async () => {
       const responses = [];
       const addressesData = readFarmAddressFile();
 
-      for (let i = 0; i < 99; i++) {
+      for (let i = 0; i < 1000; i++) {
         const addressWithCityAndZip = `${
           addressesData.addresses.map(l => {
-            return ` ${l.address1}  ${l.postalCode} ${l.city} `;
+            return ` ${l.address1} ${l.postalCode} ${l.city} `;
           })[i]
         }`;
         const farm = generateRandomFarm(addressWithCityAndZip);
@@ -217,21 +217,27 @@ describe("FarmsController", () => {
       return responses;
     };
 
-    it("should create 99 farms", async () => {
+    it.skip("should calculate the distances to 1000 farms", async () => {
       const userAddress = "6 Boughton ave 14534 Pittsford";
 
       ({ token } = await createUserWithAddressAndLogin(userAddress));
-      const res = await createFarms();
-      console.log(res);
+      const startTime = performance.now();
+      const farmCreationRes = await createFarms();
+      const endTime = performance.now();
+      const executionTime = endTime - startTime;
+      console.log(`Execution time of farm creation: ${executionTime} milliseconds`);
+      expect(farmCreationRes).toHaveLength(1000);
+      console.log(farmCreationRes.length);
       const sortBy = "NAME";
-
       const res2 = await agent
         .get("/api/farms")
         .set("Authorization", `Bearer ${token}`)
         .query({ prop: sortBy, filter: undefined })
         .send();
-      console.log(res2);
-      console.log("bar");
-    }, 12200);
+      const receivedFarms = res2.body as GetManyFarmsOutputDto;
+      //expect(receivedFarms.farms).toHaveLength(1000);
+      console.log(receivedFarms.farms.length);
+      expect(receivedFarms.farms.filter(l => !l.drivingDistance)).toHaveLength(0);
+    }, 300717); //118 * 1000 - 87646.
   });
 });
