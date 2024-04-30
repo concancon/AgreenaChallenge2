@@ -1,18 +1,19 @@
 import { EnvironmentVariables } from "config/environment-variables";
 import { Client, DistanceMatrixResponse, GeocodeResponse, LatLng } from "@googlemaps/google-maps-services-js";
 import config from "config/config";
-import { BadRequestError, UnauthorizedError } from "errors/errors";
+import { BadRequestError } from "errors/errors";
 import { AxiosError } from "axios";
+import { RateLimiter } from "limiter";
 
 export class AddressService {
   private readonly googleMapsClient: Client;
   private readonly config: EnvironmentVariables;
   private readonly batchSize = 25; // Batch size for requests
-  private readonly delays = 100; // Delay in milliseconds between batches (100 ms for 10 requests per second)
-
+  private readonly limiter: RateLimiter;
   constructor() {
     this.googleMapsClient = new Client();
     this.config = config;
+    this.limiter = new RateLimiter({ tokensPerInterval: 10, interval: "second" });
   }
 
   public async getCoordinatesFromAddress(address: string): Promise<{ lat: number; lng: number }> {
@@ -23,10 +24,7 @@ export class AddressService {
       });
     } catch (e: any) {
       const error = e as AxiosError;
-      if (error.response?.status === 403) throw new UnauthorizedError();
-      else {
-        throw new Error(error.message);
-      }
+      throw new Error(error.message);
     }
     if (!response.data.results.length) {
       throw new BadRequestError(`Address: ${address} not found`);
@@ -45,14 +43,11 @@ export class AddressService {
   }): Promise<number[]> {
     // Initialize an array to store the distances
     const distances: number[] = [];
-
     // Send requests in batches
     for (const batchDestinations of this.splitIntoBatches(destinations)) {
-      // Send request batch
+      await this.limiter.removeTokens(1);
       const batchResponse = await this.sendDistanceMatrixRequest(origin, batchDestinations);
       distances.push(...batchResponse);
-      // Rate limiting: Pause execution to comply with rate limit
-      await new Promise(resolve => setTimeout(resolve, this.delays));
     }
 
     return distances;
@@ -79,12 +74,8 @@ export class AddressService {
       });
     } catch (e: any) {
       const error = e as AxiosError;
-      if (error.response?.status === 403) throw new UnauthorizedError();
-      else {
-        throw new Error(error.message);
-      }
+      throw new Error(error.message);
     }
-
     // Extract distances from the response and return as an array
     return response.data.rows[0].elements.map(l => l.distance.value);
   }

@@ -53,7 +53,7 @@ describe("AddressService", () => {
       });
     });
 
-    it("should throw an unauthorized error when passed an invalid API key", async () => {
+    it("should throw an error and call next when passed the wrong api key", async () => {
       config.GOOGLE_MAPS_API_KEY = "now im wrong";
       const inputAddress: string = "Invalid address";
       geocodeMock = jest.fn();
@@ -63,8 +63,8 @@ describe("AddressService", () => {
 
       addressService = new AddressService();
 
-      await addressService.getCoordinatesFromAddress(inputAddress).catch((error: UnauthorizedError) => {
-        expect(error).toBeInstanceOf(UnauthorizedError);
+      await addressService.getCoordinatesFromAddress(inputAddress).catch((error: Error) => {
+        expect(error).toBeInstanceOf(Error);
       });
     });
     it("should throw an error when call failed for any reason", async () => {
