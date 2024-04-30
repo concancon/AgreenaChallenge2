@@ -153,3 +153,20 @@ Please explain in the Readme how to handle rate limitations for fetching driving
 
 - Max 25 results per request
 - Max 10 requests per second
+
+### Rate limiting the Google getMatrixDistance() request
+#### Problem statement 
+The approach suggested in this document tries to ensure that the third party rate limitations are not exceeded while also ensuring that we provide the fastest and most reliable service to our users. The third party API we are using to calculate distance to farms is the Google API, and this one imposes the following limitations  
+- Max 25 results per request
+- Max 10 requests per second
+
+Meanwhile we have to make sure that we can satisfy our customer base, which should be at the very least include 18,000 farms and at most 9 million. 
+
+#### Project definition 
+This PoC seeks to demonstrate how using a combination of splittling requests into batches and simple rate limiting, for example using a module like [limiter](https://github.com/jhurliman/node-rate-limiter) can be facilitate the integration of our software with the google maps api and make fetching driving distances for a large customer base a feasable endeavor. Using a package is interesing for the PoC because it abstracts away some of the details of the rate limiting while exposing some useful parameters for fine tuning how throttling will work, simplifying the creation of a basic prototype. Some of the additional functionalities that packages will offer include in-memory caching, optimized data structures, concurrent operations and take algorithmic efficiency into account. In particular, we should consider caching with a mechanism like redis a tool that can help us run this type of calculation much faster while completely avoiding more request to the api for the same distances.
+
+#### Project goals 
+We would baiscally like to demonstrate that our approach is sufficient to serve a userbase consisting of a number of farms that allows us to test how breaking down requests into batches and adding delays in between requests keeps us within the rate limits imposed by the third party api. To do this I've created a test inside farms.controller.integration.spec file. The test is called "it should calculate the distances to 1001 farms". Running this test is time consuming, so it is set to be skipped for the time being. Unskip the test and watch it pass. This should demonstrate that splitting the request into batches of 25 and using the limiter package and setting it to send requests every 100 ms should suffice for this ~1000 farm dataset. Since we are creating 1000 farms on the fly, and this takes approximately 87646 ms we need to subtract this value from the total of the test run(118 s or 118,000ms) to get about 30,354 ms or about 30 seconds for calculating the distance to 1000 farms.  
+
+#### Required resources 
+For this project to be implemented we will need a rate limiting module that will provide us the ability to insert a delay between requests, like the npm limiter package. We will also need tools to benchmark the performance of our requests, like javascript's performance.now() function and large and valid address data sets to test with (the included addresses.json file only contains 1000 farms).
